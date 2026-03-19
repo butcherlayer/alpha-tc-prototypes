@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpha Trading Competition — Admin Config V2.0</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #f0f2f5;
+    color: #262626;
+    font-size: 14px;
+    line-height: 1.5715;
+  }
+
+  /* ===================== MODAL ===================== */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 32px 16px 48px;
+    overflow-y: auto;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 960px;
+    max-width: 98vw;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+  }
+  .modal-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    letter-spacing: 0.01em;
+  }
+  .modal-close {
+    cursor: pointer;
+    font-size: 20px;
+    color: #8c8c8c;
+    line-height: 1;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+    border: none; background: none;
+  }
+  .modal-close:hover { background: #f5f5f5; color: #262626; }
+
+  .modal-body { padding: 24px 28px; }
+
+  /* ===================== SCOPE NOTE ===================== */
+  .scope-note {
+    background: #e6f7ff;
+    border: 1px solid #91d5ff;
+    border-left: 4px solid #1890ff;
+    border-radius: 4px;
+    padding: 11px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #0050b3;
+    line-height: 1.6;
+  }
+  .scope-note strong { color: #003a8c; font-size: 13px; }
+
+  /* ===================== URL BAR ===================== */
+  .url-bar {
+    display: flex; gap: 8px;
+    margin-bottom: 24px;
+  }
+  .url-bar input {
+    flex: 1;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 13px;
+    height: 36px;
+    outline: none;
+    color: #595959;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .url-bar input:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24,144,255,0.12);
+  }
+  .url-bar .btn-search {
+    background: #1890ff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0 20px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: background 0.2s;
+  }
+  .url-bar .btn-search:hover { background: #40a9ff; }
+
+  /* ===================== SECTION CARD ===================== */
+  .section-card {
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    background: #fff;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .section-card-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    background: #fafafa;
+    border-bottom: 1px solid #e8e8e8;
+    border-left: 4px solid #1890ff;
+  }
+  .section-card-header.green { border-left-color: #52c41a; }
+  .section-card-header.orange { border-left-color: #fa8c16; }
+  .section-card-header.red { border-left-color: #ff4d4f; }
+  .section-card-header.purple { border-left-color: #722ed1; }
+  .section-card-header.gray { border-left-color: #8c8c8c; }
+  .section-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    letter-spacing: 0.01em;
+  }
+  .section-card-subtitle {
+    font-size: 12px;
+    color: #8c8c8c;
+    font-weight: 400;
+  }
+  .section-card-body { padding: 20px 20px 16px; }
+
+  /* ===================== SECTION ICON ===================== */
+  .section-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ===================== SECTION DIVIDER TITLE ===================== */
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 28px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e8e8e8;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  /* ===================== FORM LAYOUT (label-left, input-right) ===================== */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 14px;
+    min-height: 36px;
+  }
+  .form-grid.top-align { align-items: flex-start; }
+  .form-grid .form-label {
+    text-align: right;
+    padding-right: 14px;
+    font-size: 13px;
+    color: #595959;
+    white-space: nowrap;
+    line-height: 36px;
+    flex-shrink: 0;
+  }
+  .form-grid.top-align .form-label { line-height: 1; padding-top: 9px; }
+  .form-label .req { color: #ff4d4f; margin-right: 2px; }
+  .form-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .form-value.col { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+  /* 2-column form rows */
+  .form-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+    margin-bottom: 0;
+  }
+  .form-row-2col .form-grid { margin-bottom: 14px; }
+
+  /* ===================== INPUTS & SELECTS ===================== */
+  input[type="text"],
+  input[type="number"],
+  input[type="datetime-local"],
+  select,
+  .form-input {
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 0 11px;
+    font-size: 13px;
+    height: 36px;
+    outline: none;
+    background: #fff;
+    color: #262626;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-width: 0;
+  }
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  input[type="datetime-local"]:focus,
+  select:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24,144,255,0.12);
+  }
+  input[type="text"].new-field,
+  input[type="number"].new-field,
+  select.new-field {
+    background: #fff7e6;
+    border-color: #ffd591;
+  }
+  input[type="text"].new-field:focus,
+  input[type="number"].new-field:focus,
+  select.new-field:focus {
+    border-color: #fa8c16;
+    box-shadow: 0 0 0 2px rgba(250,140,22,0.12);
+  }
+
+  /* Tag Input */
+  .tag-input-wrap {
+    display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    min-width: 220px; min-height: 34px; padding: 3px 6px;
+    border: 1px solid #ffd591; border-radius: 6px; background: #fff7e6;
+    cursor: text;
+  }
+  .tag-input-wrap:focus-within { border-color: #fa8c16; box-shadow: 0 0 0 2px rgba(250,140,22,0.12); }
+  .tag-item {
+    display: inline-flex; align-items: center; gap: 2px;
+    background: #fa8c16; color: #fff; font-size: 12px;
+    padding: 2px 6px; border-radius: 4px; line-height: 20px; white-space: nowrap;
+  }
+  .tag-item button {
+    border: none; background: none; color: rgba(255,255,255,0.8); cursor: pointer;
+    font-size: 14px; padding: 0 1px; line-height: 1;
+  }
+  .tag-item button:hover { color: #fff; }
+  .tag-text-input {
+    border: none; outline: none; background: transparent;
+    font-size: 13px; flex: 1; min-width: 80px; height: 26px; padding: 0 2px;
+  }
+
+  /* Quote Token Group */
+  .quote-group {
+    border: 1px solid #e8e8e8; border-radius: 6px; padding: 14px 16px 2px;
+    margin-left: 180px; margin-bottom: 10px; position: relative; background: #fafafa;
+  }
+  .quote-group-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: -14px -16px 10px; padding: 6px 12px;
+    background: #f5f5f5; border-radius: 6px 6px 0 0; border-bottom: 1px solid #e8e8e8;
+  }
+  .quote-group-title { font-size: 12px; font-weight: 600; color: #595959; }
+  .quote-group-remove {
+    border: none; background: none; color: #bfbfbf; font-size: 18px;
+    cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s;
+  }
+  .quote-group-remove:hover { color: #ff4d4f; }
+  .quote-group .form-grid { grid-template-columns: 140px 1fr; margin-bottom: 10px; }
+
+  select {
+    padding-right: 28px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23bfbfbf'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+  }
+  input.short {
+    width: 70px !important;
+    min-width: 70px !important;
+    text-align: center;
+  }
+  input.wide { min-width: 320px; }
+  input[type="datetime-local"] { min-width: 210px; }
+  input[type="text"] { min-width: 180px; }
+  .form-unit { font-size: 12px; color: #8c8c8c; }
+
+  /* ===================== TOKEN INNER CARDS ===================== */
+  .token-card {
+    border: 1.5px solid #91d5ff;
+    border-radius: 8px;
+    padding: 16px 16px 14px;
+    margin-bottom: 12px;
+    background: #f8fcff;
+    position: relative;
+  }
+  .token-card.second { border-color: #ffd591; background: #fffdf7; }
+
+  /* ===================== MULTIPLIER CHECKBOXES ===================== */
+  .multiplier-group {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  }
+  .multiplier-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid #d9d9d9;
+    border-radius: 20px;
+    padding: 4px 10px 4px 8px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .multiplier-pill:hover { border-color: #1890ff; background: #f0f8ff; }
+  .multiplier-pill.new-pill { border-color: #ffd591; background: #fff7e6; }
+  .multiplier-pill.new-pill:hover { border-color: #fa8c16; background: #fff3d6; }
+  .multiplier-pill input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; margin: 0; }
+  .multiplier-pill .pill-label { font-size: 13px; color: #434343; }
+  .multiplier-pill input.multiplier-input {
+    width: 44px !important; min-width: 44px !important;
+    height: 26px !important;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 4px;
+    background: #f5f5f5;
+    box-shadow: none;
+  }
+  .multiplier-pill input.multiplier-input:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 1px rgba(24,144,255,0.2);
+    background: #fff;
+  }
+
+  /* ===================== EARLY BIRD SUB-CARD ===================== */
+  .early-bird-trigger {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; cursor: pointer; color: #434343;
+  }
+  .early-bird-trigger input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; }
+  .early-bird-config {
+    display: none;
+    margin-top: 10px;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .early-bird-config .eb-inner {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .early-bird-config .eb-label { font-size: 13px; color: #7c5d00; font-weight: 500; }
+  .early-bird-config input.short {
+    width: 52px !important; min-width: 52px !important;
+    text-align: center; background: #fff; border-color: #ffe58f;
+  }
+  /* Early Bird daily table */
+  .eb-daily-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .eb-daily-table th {
+    background: #fff8e1; border: 1px solid #ffe58f; padding: 6px 10px;
+    font-size: 12px; font-weight: 600; color: #7c5d00; text-align: center;
+  }
+  .eb-daily-table td {
+    border: 1px solid #ffe58f; padding: 5px 8px; background: #fff;
+    text-align: center; vertical-align: middle;
+  }
+  .eb-daily-table td input {
+    width: 56px; height: 28px; min-width: unset; border: 1px solid #ffe58f;
+    border-radius: 4px; text-align: center; font-size: 12px; font-weight: 600;
+    padding: 0 4px; background: #fffdf0;
+  }
+  .eb-daily-table td input:focus { border-color: #fa8c16; box-shadow: 0 0 0 1px rgba(250,140,22,0.2); background: #fff; }
+  .eb-daily-table td .day-label { font-size: 12px; color: #7c5d00; font-weight: 500; }
+  .eb-daily-table .eb-add-row td {
+    background: #fffbe6; cursor: pointer; color: #fa8c16; font-size: 12px; font-weight: 500;
+  }
+  .eb-daily-table .eb-add-row td:hover { background: #fff3d6; }
+
+  /* ===================== TRADING DAYS BONUS ===================== */
+  .td-bonus-config {
+    display: none;
+    margin-top: 10px;
+    background: #f0f5ff;
+    border: 1px solid #adc6ff;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .td-bonus-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .td-bonus-table th {
+    background: #e6f0ff; border: 1px solid #adc6ff; padding: 6px 10px;
+    font-size: 12px; font-weight: 600; color: #1d39c4; text-align: center;
+  }
+  .td-bonus-table td {
+    border: 1px solid #adc6ff; padding: 5px 8px; background: #fff;
+    text-align: center; vertical-align: middle;
+  }
+  .td-bonus-table td input {
+    width: 56px; height: 28px; min-width: unset; border: 1px solid #adc6ff;
+    border-radius: 4px; text-align: center; font-size: 12px; font-weight: 600;
+    padding: 0 4px; background: #f8faff;
+  }
+  .td-bonus-table td input:focus { border-color: #2f54eb; box-shadow: 0 0 0 1px rgba(47,84,235,0.2); background: #fff; }
+  .td-bonus-table .td-add-row td {
+    background: #f0f5ff; cursor: pointer; color: #2f54eb; font-size: 12px; font-weight: 500;
+  }
+  .td-bonus-table .td-add-row td:hover { background: #e6edff; }
+
+  /* ===================== USER BONUS SUB-CARD ===================== */
+  .user-bonus-sub {
+    margin-top: 14px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    padding: 18px 20px 14px;
+    background: #fafafa;
+  }
+
+  /* ===================== LEADERBOARD TABLE ===================== */
+  .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .leaderboard-table th {
+    background: #fafafa;
+    border: 1px solid #e8e8e8;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #595959;
+    text-align: left;
+  }
+  .leaderboard-table td {
+    border: 1px solid #f0f0f0;
+    padding: 6px 8px;
+    background: #fff;
+    vertical-align: middle;
+  }
+  .leaderboard-table td input {
+    width: 100%;
+    height: 30px;
+    min-width: unset;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+  .leaderboard-table td input:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 1px rgba(24,144,255,0.15);
+  }
+  .leaderboard-table td.action-cell { width: 64px; text-align: center; }
+  .total-rewards {
+    font-size: 12px; color: #8c8c8c;
+    margin-top: 8px;
+    text-align: right;
+    font-style: italic;
+  }
+
+  /* ===================== REWARDS INNER PANEL ===================== */
+  .rewards-panel {
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 16px 18px 14px;
+    margin-top: 12px;
+    background: #fafafa;
+  }
+  .rewards-panel .panel-title {
+    font-size: 13px; font-weight: 600; color: #434343;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #e8e8e8;
+  }
+
+  /* ===================== BONUS POOL CARD ===================== */
+  .bonus-pool-card {
+    border: 1px solid #b7eb8f;
+    border-radius: 8px;
+    background: #f6ffed;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .bonus-pool-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    background: #f0fae6;
+    border-bottom: 1px solid #b7eb8f;
+    border-left: 4px solid #52c41a;
+  }
+  .bonus-pool-body { padding: 20px 20px 16px; }
+  .bonus-sub-title {
+    font-size: 13px; font-weight: 600; color: #389e0d;
+    margin: 18px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed #b7eb8f;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ===================== TOGGLE SWITCH ===================== */
+  .toggle-row {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0;
+    padding: 14px 18px;
+    background: #fafafa;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+  }
+  .toggle-label-text { font-size: 14px; font-weight: 600; color: #1a1a1a; display: flex; align-items: center; gap: 8px; }
+  .ios-toggle {
+    position: relative; width: 44px; height: 24px;
+    background: #d9d9d9; border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.28s cubic-bezier(0.4,0,0.2,1);
+    flex-shrink: 0;
+    border: none; outline: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .ios-toggle.active { background: #52c41a; }
+  .ios-toggle::after {
+    content: '';
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.28s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .ios-toggle.active::after { left: 23px; }
+  .toggle-status-text { font-size: 12px; font-weight: 500; }
+  .toggle-status-text.on { color: #52c41a; }
+  .toggle-status-text.off { color: #bfbfbf; }
+
+  /* ===================== BADGES ===================== */
+  .badge {
+    display: inline-flex; align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.02em;
+    line-height: 18px;
+    vertical-align: middle;
+  }
+  .badge-new { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+  .badge-keep { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+  .badge-enhanced { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+
+  /* ===================== HELPER TEXT ===================== */
+  .helper {
+    font-size: 12px; color: #8c8c8c;
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  /* ===================== DES BOX ===================== */
+  .des-box {
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    border-left: 3px solid #52c41a;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: -6px 0 20px;
+    font-size: 12px;
+    line-height: 1.75;
+    color: #434343;
+  }
+  .des-box h4 {
+    font-size: 12px;
+    color: #237804;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .des-box ul { padding-left: 16px; }
+  .des-box li { margin-bottom: 3px; }
+  .des-box code {
+    background: #e8f5e2;
+    border: 1px solid #c3e6a8;
+    padding: 0 4px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    color: #389e0d;
+  }
+
+  /* ===================== REMOVED NOTICE ===================== */
+  .removed {
+    background: #fff1f0;
+    border: 1px solid #ffa39e;
+    border-left: 3px solid #ff4d4f;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+  }
+  .removed strong { color: #cf1322; font-size: 13px; }
+  .removed p { font-size: 12px; color: #8c8c8c; margin-top: 4px; }
+
+  /* ===================== KEY LIST ===================== */
+  .key-list { display: flex; flex-direction: column; gap: 6px; }
+  .key-item {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .key-item input {
+    flex: 1; min-width: 0;
+    height: 32px !important;
+    font-size: 12px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+  }
+  .key-section { flex: 1; }
+  .key-section-title {
+    font-size: 12px; font-weight: 600; color: #595959;
+    margin-bottom: 6px;
+  }
+
+  /* ===================== ACTION BUTTONS (row add/del) ===================== */
+  .btn-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #595959;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .btn-icon:hover { border-color: #1890ff; color: #1890ff; background: #e6f7ff; }
+  .btn-icon.del:hover { border-color: #ff4d4f; color: #ff4d4f; background: #fff1f0; }
+  .token-actions {
+    position: absolute; right: 12px; bottom: 12px;
+    display: flex; gap: 6px;
+  }
+
+  /* ===================== DESCRIPTION 3-COL ===================== */
+  .description-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  /* ===================== HR ===================== */
+  hr.sep {
+    border: none;
+    border-top: 2px dashed #e8e8e8;
+    margin: 24px 0;
+  }
+
+  /* ===================== FOOTER BUTTONS ===================== */
+  .form-footer {
+    display: flex; justify-content: flex-end; gap: 10px;
+    padding: 16px 0 4px;
+    margin-top: 20px;
+    border-top: 1px solid #e8e8e8;
+  }
+  .btn {
+    padding: 0 20px;
+    height: 36px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    color: #434343;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .btn:hover { border-color: #40a9ff; color: #1890ff; background: #f0f8ff; }
+  .btn-primary {
+    background: #1890ff;
+    color: #fff;
+    border-color: #1890ff;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+
+  /* ===================== ID CHECK ===================== */
+  .btn-check {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #1890ff;
+    border-radius: 4px;
+    background: #fff;
+    color: #1890ff;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-check:hover { background: #e6f7ff; }
+  #idCheckResult {
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  #idCheckResult.ok { color: #52c41a; }
+  #idCheckResult.err { color: #ff4d4f; }
+
+  /* ===================== MISC ===================== */
+  .hidden { display: none !important; }
+  .inline-hint { font-size: 12px; color: #8c8c8c; }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay">
+<div class="modal">
+
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2>Alpha Trading Competition &mdash; Add Competition</h2>
+    <button class="modal-close" title="Close">&times;</button>
+  </div>
+
+  <div class="modal-body">
+
+    <!-- Scope Note -->
+    <div class="scope-note">
+      <strong>Scope: Regular TC &mdash; Alpha Trading Competition</strong><br>
+      本页面仅覆盖 Alpha TC 的配置化迭代。PNL TC / Aster Perps TC 作为活动交易大赛（Event TC），将使用独立 Admin 平台配置。
+    </div>
+
+    <!-- URL Bar -->
+    <div class="url-bar">
+      <input type="text" placeholder="Please enter the page url">
+      <button class="btn-search">Search</button>
+    </div>
+
+    <!-- ===================== BASIC INFO ===================== -->
+    <div class="section-card">
+      <div class="section-card-header gray">
+        <div class="section-icon" style="background:#f0f0f0;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="1" width="12" height="14" rx="1.5" stroke="#8c8c8c" stroke-width="1.5" fill="none"/>
+            <line x1="5" y1="5" x2="11" y2="5" stroke="#8c8c8c" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="5" y1="8" x2="11" y2="8" stroke="#8c8c8c" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="5" y1="11" x2="9" y2="11" stroke="#8c8c8c" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1px;">
+          <span class="section-card-title">Basic Info</span>
+          <span class="section-card-subtitle">基础信息</span>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="form-row-2col">
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Competition Name:</div>
+            <div class="form-value">
+              <input type="text" placeholder="Competition Name" value="Alpha Trading Competition S12" style="min-width:260px;">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Competition Id:</div>
+            <div class="form-value">
+              <input type="text" id="competitionId" placeholder="Competition ID" value="alpha_tc_s12">
+              <button class="btn-check" onclick="checkCompetitionId()">Check</button>
+              <span id="idCheckResult"></span>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Start Time (UTC+0):</div>
+            <div class="form-value">
+              <input type="datetime-local">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> End Time (UTC+0):</div>
+            <div class="form-value">
+              <input type="datetime-local">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Distribution Time (UTC+0):</div>
+            <div class="form-value">
+              <input type="datetime-local">
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Competition Icon:</div>
+            <div class="form-value">
+              <input type="text" value="static/bxw/icons/test.png">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== CONFIG TITLE ===================== -->
+    <div class="section-title">Config</div>
+
+    <!-- ===================== CALCULATE RULES CONFIG ===================== -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-icon" style="background:#e6f7ff;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1.5" y="1.5" width="13" height="13" rx="2" stroke="#1890ff" stroke-width="1.5" fill="none"/>
+            <line x1="4" y1="4" x2="7" y2="4" stroke="#1890ff" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="9" y1="4" x2="12" y2="4" stroke="#1890ff" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="4" y1="8" x2="12" y2="8" stroke="#1890ff" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="4" y1="12" x2="8" y2="12" stroke="#1890ff" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1px;">
+          <span class="section-card-title">Calculate Rules Config</span>
+          <span class="section-card-subtitle">计算规则配置</span>
+        </div>
+        <span class="badge badge-keep">现有</span>
+      </div>
+      <div class="section-card-body">
+
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> Calculate Type:</div>
+          <div class="form-value">
+            <select id="calcType" onchange="toggleCalcType()" style="min-width:220px;">
+              <option value="separately" selected>Separately Calculate</option>
+              <option value="combined">Combined Calculate</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Token Container -->
+        <div id="tokenContainer">
+
+          <!-- Token 1 -->
+          <div class="token-card" id="token1">
+            <div class="form-row-2col">
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Chain ID:</div>
+                <div class="form-value">
+                  <select style="min-width:180px;">
+                    <option selected>BNB Chain (56)</option>
+                    <option>Ethereum (1)</option>
+                    <option>Base (8453)</option>
+                    <option>Solana</option>
+                    <option>Tron (728126428)</option>
+                    <option>Sui (101)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Token Type:</div>
+                <div class="form-value">
+                  <select>
+                    <option selected>Alpha</option>
+                    <option>Spot</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Token Name:</div>
+                <div class="form-value">
+                  <input type="text" placeholder="Please enter" value="MMT">
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Token ID:</div>
+                <div class="form-value">
+                  <input type="text" value="ALPHA_512 | MMT | BSC (56)" style="min-width:220px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Token Pair NEW -->
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Token Pair: <span class="badge badge-new">NEW</span></div>
+              <div class="form-value">
+                <select class="new-field" id="tokenPair1" onchange="toggleTokenPair(this)" style="min-width:220px;">
+                  <option value="anyone" selected>Anyone (任意交易对)</option>
+                  <option value="specific">Specific Pair (指定交易对)</option>
+                </select>
+              </div>
+            </div>
+            <!-- Quote Token Groups (shown when Specific Pair) -->
+            <div id="quotePairWrap1" style="display:none;">
+              <div id="quoteGroupContainer">
+                <div class="quote-group" data-idx="1">
+                  <div class="quote-group-header">
+                    <span class="quote-group-title">Quote Token #1</span>
+                    <button type="button" class="quote-group-remove" onclick="removeQuoteGroup(this)" title="Remove">×</button>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-label">Quote Token:</div>
+                    <div class="form-value">
+                      <input type="text" class="new-field" value="USD1" placeholder="e.g. USD1" style="min-width:200px;">
+                    </div>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-label">Quote Token Type: <span class="badge badge-new">NEW</span></div>
+                    <div class="form-value">
+                      <select class="new-field quote-token-type-sel" onchange="toggleQuoteTokenType(this)" style="min-width:160px;">
+                        <option value="alpha" selected>Alpha</option>
+                        <option value="spot">Spot</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-grid quote-field-alpha">
+                    <div class="form-label">Alpha ID:</div>
+                    <div class="form-value">
+                      <input type="text" class="new-field" placeholder="e.g. ALPHA_512 | USD1 | BSC" style="min-width:280px;">
+                    </div>
+                  </div>
+                  <div class="form-grid quote-field-spot" style="display:none;">
+                    <div class="form-label">Contract Address (CA):</div>
+                    <div class="form-value">
+                      <input type="text" class="new-field" placeholder="0x..." style="min-width:280px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-left:180px; margin-bottom:14px;">
+                <button type="button" onclick="addQuoteGroup()" style="background:none;border:1px dashed #d9d9d9;border-radius:4px;padding:6px 16px;color:#1890ff;font-size:13px;cursor:pointer;transition:border-color 0.2s;">+ Add Quote Token Group</button>
+              </div>
+            </div>
+
+            <!-- Channel Multiplier ENHANCED -->
+            <div class="form-grid top-align" style="margin-bottom:14px;">
+              <div class="form-label" style="padding-top:9px;"><span class="req">*</span> Channel Multiplier: <span class="badge badge-enhanced">ENHANCED</span></div>
+              <div class="form-value" style="padding-top:4px;">
+                <div class="multiplier-group">
+                  <label class="multiplier-pill">
+                    <input type="checkbox" checked>
+                    <span class="pill-label">Cex Limit</span>
+                    <input type="text" class="multiplier-input" value="1">
+                  </label>
+                  <label class="multiplier-pill new-pill">
+                    <input type="checkbox" checked>
+                    <span class="pill-label">Cex Instant</span>
+                    <input type="text" class="multiplier-input new-field" value="1">
+                  </label>
+                  <label class="multiplier-pill new-pill">
+                    <input type="checkbox" checked>
+                    <span class="pill-label">Dex</span>
+                    <input type="text" class="multiplier-input new-field" value="1">
+                  </label>
+                </div>
+                <div style="font-size:11px; color:#8c8c8c; margin-top:4px;">默认勾选 = 1x；不勾选 = 0x = 该渠道交易量不计入统计</div>
+              </div>
+            </div>
+
+            <!-- Early Bird Boost NEW — 每日倍数配置 -->
+            <div class="form-grid top-align">
+              <div class="form-label" style="padding-top:8px;">
+                Daily Volume Boost: <span class="badge badge-new">NEW</span>
+              </div>
+              <div class="form-value col">
+                <label class="early-bird-trigger">
+                  <input type="checkbox" id="earlyBirdToggle1" onchange="toggleEarlyBird(this)">
+                  <span>Enable Daily Volume Boost（每日交易量倍数）</span>
+                </label>
+                <div class="early-bird-config" style="display:none;">
+                  <div style="font-size:12px;color:#7c5d00;margin-bottom:6px;">为比赛期间的每一天分别配置交易量倍数（默认 1x = 无加成）：</div>
+                  <div style="font-size:11px;color:#1890ff;margin-bottom:8px;background:#e6f7ff;border:1px solid #91d5ff;border-radius:4px;padding:6px 10px;line-height:1.6;">
+                    <strong>Day 计算规则：</strong>以活动上线时间（Start Time）为起点，每 24 小时为一个 Day。<br>
+                    活动上线后 0-24 小时 = Day 1，24-48 小时 = Day 2，48-72 小时 = Day 3，以此类推。<br>
+                    例如活动 Start Time 为 2026-03-10 00:00 UTC，则 Day 1 = 03/10 00:00 ~ 03/11 00:00，Day 2 = 03/11 00:00 ~ 03/12 00:00。
+                  </div>
+                  <table class="eb-daily-table" id="ebDailyTable1">
+                    <thead>
+                      <tr>
+                        <th style="width:100px;">Day</th>
+                        <th style="width:100px;">Multiplier</th>
+                        <th style="width:50px;"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="day-label">Day 1</span></td>
+                        <td><input type="text" value="3"></td>
+                        <td><button class="btn-icon del" title="Remove" onclick="removeEbRow(this)">-</button></td>
+                      </tr>
+                      <tr>
+                        <td><span class="day-label">Day 2</span></td>
+                        <td><input type="text" value="3"></td>
+                        <td><button class="btn-icon del" title="Remove" onclick="removeEbRow(this)">-</button></td>
+                      </tr>
+                      <tr>
+                        <td><span class="day-label">Day 3</span></td>
+                        <td><input type="text" value="2"></td>
+                        <td><button class="btn-icon del" title="Remove" onclick="removeEbRow(this)">-</button></td>
+                      </tr>
+                      <tr>
+                        <td><span class="day-label">Day 4</span></td>
+                        <td><input type="text" value="2"></td>
+                        <td><button class="btn-icon del" title="Remove" onclick="removeEbRow(this)">-</button></td>
+                      </tr>
+                      <tr>
+                        <td><span class="day-label">Day 5</span></td>
+                        <td><input type="text" value="1.5"></td>
+                        <td><button class="btn-icon del" title="Remove" onclick="removeEbRow(this)">-</button></td>
+                      </tr>
+                      <tr>
+                        <td colspan="3" style="color:#5e6673;font-size:11px;background:#fffbe6;text-align:left;padding:6px 10px;">
+                          Day 6+ 未配置的天数默认 <strong>1x</strong>（无加成）
+                        </td>
+                      </tr>
+                      <tr class="eb-add-row" onclick="addEbRow('ebDailyTable1')">
+                        <td colspan="3">+ Add Day</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div style="font-size:11px;color:#8c8c8c;margin-top:8px;">示例：Day 1-2 = 3x，Day 3-4 = 2x，Day 5 = 1.5x，之后 = 1x。与渠道倍数叠加计算。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Direction:</div>
+              <div class="form-value">
+                <select>
+                  <option selected>All</option>
+                  <option>Buy</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="token-actions">
+              <button class="btn-icon" title="Add Token" onclick="addToken()">+</button>
+            </div>
+          </div><!-- /token1 -->
+
+          <!-- Token 2 (hidden by default) -->
+          <div class="token-card second hidden" id="token2">
+            <div class="form-row-2col">
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Chain ID:</div>
+                <div class="form-value">
+                  <select style="min-width:180px;">
+                    <option selected>BNB Chain (56)</option>
+                    <option>Ethereum (1)</option>
+                    <option>Base (8453)</option>
+                    <option>Solana</option>
+                    <option>Tron (728126428)</option>
+                    <option>Sui (101)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Token Type:</div>
+                <div class="form-value">
+                  <select>
+                    <option selected>Alpha</option>
+                    <option>Spot</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Token Name:</div>
+                <div class="form-value">
+                  <input type="text" placeholder="Please enter">
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Token ID:</div>
+                <div class="form-value">
+                  <input type="text" placeholder="Please select token id" style="min-width:220px;">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Token Pair: <span class="badge badge-new">NEW</span></div>
+              <div class="form-value">
+                <select class="new-field" style="min-width:220px;">
+                  <option selected>Anyone (任意交易对)</option>
+                  <option value="specific">Specific Pair (指定交易对)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid top-align" style="margin-bottom:14px;">
+              <div class="form-label" style="padding-top:9px;"><span class="req">*</span> Multiplier calculation: <span class="badge badge-enhanced">ENHANCED</span></div>
+              <div class="form-value" style="padding-top:4px;">
+                <div class="multiplier-group">
+                  <label class="multiplier-pill">
+                    <input type="checkbox" checked>
+                    <span class="pill-label">Cex Limit</span>
+                    <input type="text" class="multiplier-input" value="1">
+                  </label>
+                  <label class="multiplier-pill new-pill">
+                    <input type="checkbox">
+                    <span class="pill-label">Cex Instant</span>
+                    <input type="text" class="multiplier-input" value="1">
+                  </label>
+                  <label class="multiplier-pill new-pill">
+                    <input type="checkbox">
+                    <span class="pill-label">Dex</span>
+                    <input type="text" class="multiplier-input" value="1">
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Direction:</div>
+              <div class="form-value">
+                <select>
+                  <option selected>All</option>
+                  <option>Buy</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="token-actions">
+              <button class="btn-icon" title="Add Token" onclick="addToken()">+</button>
+              <button class="btn-icon del" title="Remove Token" onclick="removeToken(this)">-</button>
+            </div>
+          </div><!-- /token2 -->
+
+        </div><!-- /tokenContainer -->
+
+        <div class="helper" id="calcTypeHint">Separately Calculate: 默认 1 个 Token 卡片，点 + 可增加。Combined Calculate: 默认 2 个 Token 卡片。</div>
+
+      </div>
+    </div><!-- /calculate rules card -->
+
+    <div class="des-box">
+      <h4>Des. &mdash; Calculate Rules Config 改动点</h4>
+      <ul>
+        <li><strong>Token 卡片动态增删：</strong>Separately 默认 1 个 Token，Combined 默认 2 个，均可通过 +/- 增删。与现有 Admin 逻辑一致。</li>
+        <li><strong>Token Pair <span class="badge badge-new">NEW</span>：</strong><code>Anyone</code>=任意交易对（现有）；<code>Specific Pair</code>=仅统计指定 Quote Token 交易对（如 USD1-MMT）。</li>
+        <li><strong>Channel Multiplier <span class="badge badge-enhanced">ENHANCED</span>：</strong>现有仅支持 Cex Limit 倍数。新增 <code>Cex Instant</code> 和 <code>Dex</code> 的独立倍数配置。</li>
+        <li><strong>Daily Volume Boost <span class="badge badge-new">NEW</span>：</strong>勾选后展开每日倍数配置表。运营可为比赛期间每一天单独设置交易量倍数（如 Day1=3x, Day2=3x, Day3=2x...），未配置的天数默认 1x。支持动态增删行。</li>
+        <li><strong>Chain ID：</strong>新增多链支持（ETH/Base/Solana/Sui），统一为「链名 (ID)」格式显示。</li>
+      </ul>
+    </div>
+
+    <!-- ===================== USER BONUS CONFIG ===================== -->
+    <div class="section-card">
+      <div class="section-card-header red">
+        <div class="section-icon" style="background:#fff1f0;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5l3.5-.5L8 2z" stroke="#ff4d4f" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1px;">
+          <span class="section-card-title">User Bonus Config</span>
+          <span class="section-card-subtitle">用户加成配置</span>
+        </div>
+        <span class="badge badge-new">NEW</span>
+      </div>
+      <div class="section-card-body">
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> Enable User Bonus:</div>
+          <div class="form-value">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:#434343;">
+              <input type="checkbox" id="userBonusToggle" onchange="toggleUserBonus()" style="width:15px;height:15px;cursor:pointer;" checked>
+              <span>Enable User Bonus（用户加成）</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="userBonusConfig" class="user-bonus-sub">
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Eligible User Type:</div>
+            <div class="form-value">
+              <span style="font-size:13px; color:#434343; font-weight:600;">Low Winner — 低获奖次数用户</span>
+            </div>
+          </div>
+          <div class="form-grid" id="lowWinConfig">
+            <div class="form-label"><span class="req">*</span> Max Win Count:</div>
+            <div class="form-value">
+              <input type="number" value="3" class="short" style="width:70px;">
+              <span class="form-unit">次（获奖次数 &lt; 此值的用户享受加成）</span>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Bonus Volume Multiplier:</div>
+            <div class="form-value">
+              <input type="text" value="1.5" class="short" style="width:70px; font-weight:700;">
+              <span class="form-unit">x（符合条件用户的交易量倍数）</span>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label">Max Bonus Cap (Optional):</div>
+            <div class="form-value">
+              <input type="text" placeholder="e.g. 10000" style="width:120px; min-width:120px;">
+              <span class="form-unit">USD（封顶金额，留空=不封顶）</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="helper" style="margin-top:10px;">针对低频获奖用户给予交易量加成，鼓励参与。倍数与渠道 Multiplier / Daily Boost 叠加计算。</div>
+      </div>
+    </div>
+
+    <div class="des-box">
+      <h4>Des. &mdash; User Bonus Config 改动点</h4>
+      <ul>
+        <li><strong>Enable 开关 <span class="badge badge-new">NEW</span>：</strong>勾选后展开配置项，不勾选则该活动无用户加成。</li>
+        <li><strong>Eligible User Type：</strong>仅支持 <code>Low Winner（低获奖次数用户）</code> — 历史获奖次数 &lt; N 的用户，需设置 Max Win Count 阈值。</li>
+        <li><strong>Bonus Volume Multiplier：</strong>符合条件用户的交易量倍数（如 1.5x）。</li>
+        <li><strong>叠加计算公式：</strong>有效交易量 = 原始交易量 x 渠道倍数 x Daily Boost（如有）x 用户加成倍数（如有）</li>
+        <li><strong>Max Bonus Cap：</strong>可选封顶金额，防止极端情况。留空则不设上限。</li>
+      </ul>
+    </div>
+
+    <!-- ===================== REWARDS CONFIG ===================== -->
+    <div class="section-card">
+      <div class="section-card-header green">
+        <div class="section-icon" style="background:#f6ffed;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1l1.5 4h4l-3.5 2.5 1.5 4L8 9l-3.5 2.5 1.5-4L2.5 5h4L8 1z" stroke="#52c41a" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1px;">
+          <span class="section-card-title">Rewards Config</span>
+          <span class="section-card-subtitle">奖励配置</span>
+        </div>
+        <span class="badge badge-keep">现有</span>
+      </div>
+      <div class="section-card-body">
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> Rewards Type:</div>
+          <div class="form-value">
+            <select style="min-width:200px;">
+              <option selected>Leaderboard</option>
+              <option>Equal Split</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rewards-panel">
+          <div class="panel-title">Reward Token &amp; Leaderboard Setup</div>
+          <div class="form-row-2col">
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Token:</div>
+              <div class="form-value"><input type="text" value="MMT" style="min-width:140px;"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Rewards Symbol:</div>
+              <div class="form-value"><input type="text" value="MMT" style="min-width:140px;"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Prize Pool:</div>
+              <div class="form-value"><input type="text" value="5000000" style="min-width:160px;"></div>
+            </div>
+          </div>
+
+          <div style="font-size:13px; font-weight:600; color:#595959; margin: 14px 0 8px;">Leaderboard Setup:</div>
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>起始名次</th>
+                <th>截止名次</th>
+                <th>Rewards Per User</th>
+                <th class="action-cell">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" value="1"></td>
+                <td><input type="text" value="3"></td>
+                <td><input type="text" value="500000"></td>
+                <td class="action-cell">
+                  <button class="btn-icon del" title="Remove row">-</button>
+                  <button class="btn-icon" title="Add row">+</button>
+                </td>
+              </tr>
+              <tr>
+                <td><input type="text" value="4"></td>
+                <td><input type="text" value="50"></td>
+                <td><input type="text" value="50000"></td>
+                <td class="action-cell">
+                  <button class="btn-icon del" title="Remove row">-</button>
+                  <button class="btn-icon" title="Add row">+</button>
+                </td>
+              </tr>
+              <tr>
+                <td><input type="text" value="51"></td>
+                <td><input type="text" value="500"></td>
+                <td><input type="text" value="5000"></td>
+                <td class="action-cell">
+                  <button class="btn-icon del" title="Remove row">-</button>
+                  <button class="btn-icon" title="Add row">+</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="total-rewards">Total Rewards: 5,000,000 MMT</div>
+
+          <div style="margin-top:16px; border-top:1px dashed #e8e8e8; padding-top:14px;">
+            <div class="form-row-2col">
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Rewards Token Type:</div>
+                <div class="form-value">
+                  <select onchange="toggleRewardTokenFields(this, 'mainReward')" style="min-width:180px;">
+                    <option value="alpha" selected>Alpha Token</option>
+                    <option value="spot">Spot Token</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid" id="mainReward-alpha">
+                <div class="form-label"><span class="req">*</span> Rewards Alpha ID:</div>
+                <div class="form-value">
+                  <input type="text" value="ALPHA_512 | MMT | BSC (56)" style="min-width:200px;">
+                </div>
+              </div>
+              <div class="form-grid hidden" id="mainReward-spot">
+                <div class="form-label"><span class="req">*</span> Contract Address:</div>
+                <div class="form-value">
+                  <input type="text" placeholder="0x..." style="min-width:200px;">
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-label"><span class="req">*</span> Rewards Destination: <span class="badge badge-keep">已有</span></div>
+                <div class="form-value">
+                  <select style="min-width:180px;">
+                    <option selected>Alpha 2.0</option>
+                    <option>Keyless Wallet</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="des-box">
+      <h4>Des. &mdash; Rewards Config 说明</h4>
+      <ul>
+        <li><strong>Rewards Token Type 条件显示：</strong>Alpha Token &rarr; 显示 Rewards Alpha ID；Spot Token &rarr; 显示 Contract Address。两者互斥不同时出现。</li>
+        <li>其余（Rewards Type / Leaderboard Setup / Destination）均为现有能力，无改动。</li>
+      </ul>
+    </div>
+
+    <!-- ===================== BONUS POOL ===================== -->
+    <hr class="sep">
+
+    <div class="toggle-row">
+      <span class="toggle-label-text">
+        额外奖池奖励
+        <span class="badge badge-enhanced">ENHANCED</span>
+      </span>
+      <button class="ios-toggle active" onclick="var s=this.classList.toggle('active'); this.nextElementSibling.textContent=this.classList.contains('active')?'已开启':'已关闭'; this.nextElementSibling.className='toggle-status-text '+(this.classList.contains('active')?'on':'off');"></button>
+      <span class="toggle-status-text on">已开启</span>
+    </div>
+
+    <div class="bonus-pool-card">
+      <div class="bonus-pool-header">
+        <span class="section-card-title">额外奖池配置</span>
+      </div>
+      <div class="bonus-pool-body">
+
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> 额外奖池名称: <span class="badge badge-new">NEW</span></div>
+          <div class="form-value">
+            <input type="text" class="new-field" value="USD1 Bonus" placeholder="e.g. USD1 Bonus / 项目方专属奖池" style="min-width:280px;">
+          </div>
+        </div>
+        <div class="form-row-2col">
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> 卡片 Footer:</div>
+            <div class="form-value"><input type="text" value="USD1 Bonus" style="min-width:180px;"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> 详情页 Title:</div>
+            <div class="form-value"><input type="text" value="USD1 专属奖励" style="min-width:180px;"></div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> 详情页 Subtitle:</div>
+          <div class="form-value">
+            <input type="text" value="使用 USD1 参与交易大赛，赚取额外 WLF 代币" style="min-width:380px;">
+          </div>
+        </div>
+
+        <div class="bonus-sub-title">
+          额外奖池交易代币
+          <span class="badge badge-new">NEW: 通用化</span>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> 交易代币:</div>
+          <div class="form-value">
+            <input type="text" value="USD1" class="new-field" style="min-width:160px;">
+          </div>
+        </div>
+        <div class="form-row-2col">
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> ChainID:</div>
+            <div class="form-value">
+              <select style="min-width:180px;">
+                <option selected>BNB Chain (56)</option>
+                <option>Ethereum (1)</option>
+                <option>Base (8453)</option>
+                <option>Solana</option>
+                <option>Tron (728126428)</option>
+                <option>Sui (101)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Token Type:</div>
+            <div class="form-value">
+              <select id="bonusTokenType" onchange="toggleBonusTokenType()" style="min-width:120px;">
+                <option value="alpha">Alpha</option>
+                <option value="spot" selected>Spot</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid hidden" id="bonusAlphaId">
+            <div class="form-label"><span class="req">*</span> Alpha ID:</div>
+            <div class="form-value"><input type="text" placeholder="Please select" style="min-width:160px;"></div>
+          </div>
+          <div class="form-grid" id="bonusContract">
+            <div class="form-label"><span class="req">*</span> Contract Address:</div>
+            <div class="form-value"><input type="text" placeholder="0x..." style="min-width:200px;"></div>
+          </div>
+        </div>
+
+        <div class="form-grid top-align" style="margin-bottom:14px;">
+          <div class="form-label" style="padding-top:9px;">Multiplier calculation:</div>
+          <div class="form-value" style="padding-top:4px;">
+            <div class="multiplier-group">
+              <label class="multiplier-pill">
+                <input type="checkbox" checked>
+                <span class="pill-label">Cex Limit</span>
+                <input type="text" class="multiplier-input" value="1">
+              </label>
+              <label class="multiplier-pill new-pill">
+                <input type="checkbox">
+                <span class="pill-label">Cex Instant</span>
+                <input type="text" class="multiplier-input" value="1">
+              </label>
+              <label class="multiplier-pill new-pill">
+                <input type="checkbox">
+                <span class="pill-label">Dex</span>
+                <input type="text" class="multiplier-input" value="1">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> Direction:</div>
+          <div class="form-value">
+            <select style="min-width:140px;">
+              <option selected>All</option>
+              <option>Buy</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bonus-sub-title">额外奖池奖励配置</div>
+
+        <div class="form-grid">
+          <div class="form-label"><span class="req">*</span> Rewards Type:</div>
+          <div class="form-value">
+            <select style="min-width:180px;">
+              <option>Equal Split</option>
+              <option selected>Leaderboard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rewards-panel" style="background:#fff; border-color:#d9d9d9;">
+          <div class="panel-title">Bonus Reward Token &amp; Leaderboard Setup</div>
+          <div class="form-row-2col">
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> 奖励代币:</div>
+              <div class="form-value"><input type="text" value="WLF" style="min-width:140px;"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Prize Pool:</div>
+              <div class="form-value"><input type="text" value="600000" style="min-width:140px;"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-label"><span class="req">*</span> Symbol:</div>
+              <div class="form-value"><input type="text" value="WLF" style="min-width:140px;"></div>
+            </div>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-grid">
+              <div class="form-label">Reward Token Type:</div>
+              <div class="form-value">
+                <select onchange="toggleRewardTokenFields(this, 'bonusReward')" style="min-width:180px;">
+                  <option value="alpha" selected>Alpha Token</option>
+                  <option value="spot">Spot Token</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid" id="bonusReward-alpha">
+              <div class="form-label"><span class="req">*</span> Reward Alpha Id:</div>
+              <div class="form-value"><input type="text" placeholder="Please select" style="min-width:180px;"></div>
+            </div>
+            <div class="form-grid hidden" id="bonusReward-spot">
+              <div class="form-label"><span class="req">*</span> Contract Address:</div>
+              <div class="form-value"><input type="text" placeholder="0x..." style="min-width:180px;"></div>
+            </div>
+          </div>
+
+          <div style="font-size:13px; font-weight:600; color:#595959; margin:14px 0 8px;">Leaderboard Setup:</div>
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>起始名次</th>
+                <th>截止名次</th>
+                <th>Per User</th>
+                <th class="action-cell">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="text" value="1"></td>
+                <td><input type="text" value="50"></td>
+                <td><input type="text" value="12000"></td>
+                <td class="action-cell">
+                  <button class="btn-icon" title="Add row">+</button>
+                  <button class="btn-icon del" title="Remove row">-</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="total-rewards">Total Rewards: 600,000 WLF</div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Eligibility:</div>
+            <div class="form-value">
+              <input value="_competition_how_desc" style="min-width:200px; font-family:'SFMono-Regular',Consolas,monospace; font-size:12px;">
+              <button class="btn-icon del" title="Remove">-</button>
+            </div>
+          </div>
+          <div class="form-grid top-align">
+            <div class="form-label" style="padding-top:9px;"><span class="req">*</span> 规则描述:</div>
+            <div class="form-value col">
+              <div class="key-list">
+                <div class="key-item">
+                  <input value="alpha_competition_how_desc_1">
+                  <button class="btn-icon del" title="Remove">-</button>
+                  <button class="btn-icon" title="Add">+</button>
+                </div>
+                <div class="key-item">
+                  <input value="alpha_competition_how_desc_2">
+                  <button class="btn-icon del" title="Remove">-</button>
+                  <button class="btn-icon" title="Add">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /bonus-pool-card -->
+
+    <div class="des-box">
+      <h4>Des. &mdash; 额外奖池通用化改动点</h4>
+      <ul>
+        <li><strong>名称通用化 <span class="badge badge-new">NEW</span>：</strong>从硬编码 "USD1 Bonus" &rarr; 自由输入。</li>
+        <li><strong>交易代币通用化 <span class="badge badge-new">NEW</span>：</strong>从仅 USD1 &rarr; 任意代币。</li>
+        <li><strong>Token Type 条件显示：</strong>Alpha &rarr; 显示 Alpha ID；Spot &rarr; 显示 Contract Address。互斥。</li>
+        <li><strong>Reward Token Type：</strong>仅 Alpha Token / Spot Token 两个选项（去掉 Prize Token）。</li>
+        <li><strong>Multiplier 增强：</strong>额外奖池也支持 Cex Instant / Dex 倍数。</li>
+      </ul>
+    </div>
+
+    <!-- ===================== DESCRIPTION ===================== -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-icon" style="background:#e6f7ff;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="1" width="12" height="14" rx="1.5" stroke="#1890ff" stroke-width="1.5" fill="none"/>
+            <line x1="5" y1="5" x2="11" y2="5" stroke="#1890ff" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="5" y1="8" x2="11" y2="8" stroke="#1890ff" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="5" y1="11" x2="9" y2="11" stroke="#1890ff" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1px;">
+          <span class="section-card-title">Description</span>
+          <span class="section-card-subtitle">文案配置</span>
+        </div>
+        <span class="badge badge-enhanced">ENHANCED</span>
+      </div>
+      <div class="section-card-body">
+        <div class="description-grid">
+          <div class="key-section">
+            <div class="key-section-title">General Description:</div>
+            <div class="key-list">
+              <div class="key-item">
+                <input value="alpha_competition_rule_desc">
+                <button class="btn-icon" title="Add">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="key-section">
+            <div class="key-section-title">Rule Description:</div>
+            <div class="key-list">
+              <div class="key-item"><input value="alpha_competition_desc_1"><button class="btn-icon del">-</button></div>
+              <div class="key-item"><input value="alpha_competition_rule_desc_buyorder"><button class="btn-icon del">-</button></div>
+              <div class="key-item"><input value="alpha_competition_desc_8"><button class="btn-icon del">-</button></div>
+              <div class="key-item"><input value="alpha_competition_desc_pair"><button class="btn-icon del">-</button><button class="btn-icon">+</button></div>
+            </div>
+          </div>
+          <div class="key-section">
+            <div class="key-section-title">Option Description:</div>
+            <div class="key-list">
+              <div class="key-item"><input value="alpha_competition_how_desc_1"><button class="btn-icon del">-</button></div>
+              <div class="key-item"><input value="alpha_competition_how_desc_2"><button class="btn-icon del">-</button></div>
+              <div class="key-item"><input value="alpha_competition_how_desc_4"><button class="btn-icon del">-</button><button class="btn-icon">+</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="des-box">
+      <h4>Des. &mdash; Description 改动点</h4>
+      <ul>
+        <li><strong>BTS Key 自动生成 <span class="badge badge-new">NEW</span>：</strong>根据 Rewards Type（Equal Split / Leaderboard），系统自动填充 Default BTS Key 模版。Alpha TC 仅需 2 套模版（Volume+ES / Volume+LB）。</li>
+        <li>运营仍可手动增删改 Key。</li>
+      </ul>
+    </div>
+
+    <!-- ===================== STATUS ===================== -->
+    <div class="section-card">
+      <div class="section-card-header gray">
+        <div class="section-icon" style="background:#f0f0f0;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="5.5" stroke="#8c8c8c" stroke-width="1.5" fill="none"/>
+            <circle cx="8" cy="8" r="2" fill="#8c8c8c"/>
+            <line x1="8" y1="1" x2="8" y2="2.5" stroke="#8c8c8c" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="8" y1="13.5" x2="8" y2="15" stroke="#8c8c8c" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="1" y1="8" x2="2.5" y2="8" stroke="#8c8c8c" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="13.5" y1="8" x2="15" y2="8" stroke="#8c8c8c" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1px;">
+          <span class="section-card-title">Status &amp; Settings</span>
+          <span class="section-card-subtitle">状态与设置</span>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="form-row-2col">
+          <div class="form-grid">
+            <div class="form-label"><span class="req">*</span> Status:</div>
+            <div class="form-value">
+              <select style="min-width:160px;">
+                <option selected>OPEN</option>
+                <option>CLOSED</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-label">Auto Calculate:</div>
+            <div class="form-value">
+              <select style="min-width:160px;">
+                <option selected>True</option>
+                <option>False</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- UID Whitelist NEW -->
+        <div class="form-grid top-align" style="margin-top:10px;">
+          <div class="form-label" style="padding-top:9px;"><span class="req">*</span> UID Whitelist: <span class="badge badge-new">NEW</span></div>
+          <div class="form-value">
+            <div class="tag-input-wrap new-field" id="uidWhitelistWrap" onclick="this.querySelector('input').focus()" style="min-height:60px; align-items:flex-start; padding:6px;">
+              <span class="tag-item">123456789 <button type="button" onclick="this.parentElement.remove()">×</button></span>
+              <span class="tag-item">987654321 <button type="button" onclick="this.parentElement.remove()">×</button></span>
+              <span class="tag-item">111222333 <button type="button" onclick="this.parentElement.remove()">×</button></span>
+              <input type="text" class="tag-text-input" placeholder="输入 UID 后按 Enter" onkeydown="handleTagInput(event, this)">
+            </div>
+            <div class="helper" style="margin-top:4px;">仅白名单中的 UID 可在前端看到该活动卡片。输入 UID 后按 Enter 添加，支持多个。</div>
+          </div>
+        </div>
+
+        <div class="removed" style="margin-top:8px;">
+          <strong>移除：CDA Config JSON</strong>
+          <p>不再让运营直接编辑 JSON。后端根据上述表单字段自动生成 CDA 计算配置 JSON file。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Buttons -->
+    <div class="form-footer">
+      <button class="btn">Cancel</button>
+      <button class="btn btn-primary">Submit</button>
+    </div>
+
+  </div><!-- /modal-body -->
+</div><!-- /modal -->
+</div><!-- /modal-overlay -->
+
+<script>
+// 1. Calculate Type toggle: Separately = 1 token, Combined = 2 tokens
+function toggleCalcType() {
+  var type = document.getElementById('calcType').value;
+  var token2 = document.getElementById('token2');
+  if (type === 'combined') {
+    token2.classList.remove('hidden');
+  } else {
+    token2.classList.add('hidden');
+  }
+}
+
+function addToken() {
+  alert('Token card added (interactive demo - in production, a new token card will be appended)');
+}
+
+function removeToken(btn) {
+  var card = btn.closest('.token-card');
+  if (card) card.classList.add('hidden');
+}
+
+// Token Pair conditional show
+function toggleTokenPair(sel) {
+  var wrap = document.getElementById('quotePairWrap1');
+  if (wrap) wrap.style.display = sel.value === 'specific' ? 'block' : 'none';
+}
+
+// Tag input handler
+function handleTagInput(e, input) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    var val = input.value.trim();
+    if (!val) return;
+    var tag = document.createElement('span');
+    tag.className = 'tag-item';
+    tag.innerHTML = val + ' <button type="button" onclick="this.parentElement.remove()">×</button>';
+    input.parentElement.insertBefore(tag, input);
+    input.value = '';
+  }
+}
+
+// 2. User Bonus toggle
+function toggleUserBonus() {
+  var cb = document.getElementById('userBonusToggle');
+  var config = document.getElementById('userBonusConfig');
+  config.style.display = cb.checked ? 'block' : 'none';
+}
+function toggleEarlyBird(cb) {
+  var config = cb.closest('.form-value').querySelector('.early-bird-config');
+  if (config) config.style.display = cb.checked ? 'block' : 'none';
+}
+// Early Bird daily table: add/remove rows
+function addEbRow(tableId) {
+  var table = document.getElementById(tableId);
+  var tbody = table.querySelector('tbody');
+  var dataRows = tbody.querySelectorAll('tr:not(.eb-add-row)');
+  // Count existing day rows (exclude the hint row and add-row)
+  var dayCount = 0;
+  dataRows.forEach(function(r) { if (r.querySelector('.day-label')) dayCount++; });
+  var newDay = dayCount + 1;
+  var newRow = document.createElement('tr');
+  newRow.innerHTML = '<td><span class="day-label">Day ' + newDay + '</span></td><td><input type="text" value="1"></td><td><button class="btn-icon del" title="Remove" onclick="removeEbRow(this)">-</button></td>';
+  // Insert before the hint row (second to last) or add-row (last)
+  var addRow = tbody.querySelector('.eb-add-row');
+  var hintRow = addRow.previousElementSibling;
+  tbody.insertBefore(newRow, hintRow);
+  renumberEbDays(tableId);
+}
+function removeEbRow(btn) {
+  var row = btn.closest('tr');
+  var tableId = row.closest('table').id;
+  row.remove();
+  renumberEbDays(tableId);
+}
+function renumberEbDays(tableId) {
+  var table = document.getElementById(tableId);
+  var rows = table.querySelectorAll('tbody tr');
+  var dayNum = 1;
+  rows.forEach(function(r) {
+    var label = r.querySelector('.day-label');
+    if (label) { label.textContent = 'Day ' + dayNum; dayNum++; }
+  });
+  // Update hint row
+  var hintRow = table.querySelector('tbody tr td[colspan="3"][style]');
+  if (hintRow) {
+    hintRow.innerHTML = 'Day ' + dayNum + '+ 未配置的天数默认 <strong>1x</strong>（无加成）';
+  }
+}
+
+// 3. Quote Token Type toggle (Alpha/Spot)
+function toggleQuoteTokenType(sel) {
+  var group = sel.closest('.quote-group');
+  if (!group) return;
+  var val = sel.value;
+  var alphaRow = group.querySelector('.quote-field-alpha');
+  var spotRow = group.querySelector('.quote-field-spot');
+  if (alphaRow) alphaRow.style.display = val === 'alpha' ? 'grid' : 'none';
+  if (spotRow) spotRow.style.display = val === 'spot' ? 'grid' : 'none';
+}
+
+// Add / Remove Quote Token Group
+var quoteGroupCounter = 1;
+function addQuoteGroup() {
+  quoteGroupCounter++;
+  var n = quoteGroupCounter;
+  var container = document.getElementById('quoteGroupContainer');
+  var div = document.createElement('div');
+  div.className = 'quote-group';
+  div.setAttribute('data-idx', n);
+  div.innerHTML =
+    '<div class="quote-group-header">' +
+      '<span class="quote-group-title">Quote Token #' + n + '</span>' +
+      '<button type="button" class="quote-group-remove" onclick="removeQuoteGroup(this)" title="Remove">\u00d7</button>' +
+    '</div>' +
+    '<div class="form-grid">' +
+      '<div class="form-label">Quote Token:</div>' +
+      '<div class="form-value">' +
+        '<input type="text" class="new-field" placeholder="e.g. USD1" style="min-width:200px;">' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-grid">' +
+      '<div class="form-label">Quote Token Type: <span class="badge badge-new">NEW</span></div>' +
+      '<div class="form-value">' +
+        '<select class="new-field quote-token-type-sel" onchange="toggleQuoteTokenType(this)" style="min-width:160px;">' +
+          '<option value="alpha" selected>Alpha</option>' +
+          '<option value="spot">Spot</option>' +
+        '</select>' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-grid quote-field-alpha">' +
+      '<div class="form-label">Alpha ID:</div>' +
+      '<div class="form-value">' +
+        '<input type="text" class="new-field" placeholder="e.g. ALPHA_512 | USD1 | BSC" style="min-width:280px;">' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-grid quote-field-spot" style="display:none;">' +
+      '<div class="form-label">Contract Address (CA):</div>' +
+      '<div class="form-value">' +
+        '<input type="text" class="new-field" placeholder="0x..." style="min-width:280px;">' +
+      '</div>' +
+    '</div>';
+  container.appendChild(div);
+  renumberQuoteGroups();
+}
+
+function removeQuoteGroup(btn) {
+  var group = btn.closest('.quote-group');
+  var container = document.getElementById('quoteGroupContainer');
+  if (container.querySelectorAll('.quote-group').length <= 1) return;
+  group.remove();
+  renumberQuoteGroups();
+}
+
+function renumberQuoteGroups() {
+  var groups = document.querySelectorAll('#quoteGroupContainer .quote-group');
+  groups.forEach(function(g, i) {
+    g.querySelector('.quote-group-title').textContent = 'Quote Token #' + (i + 1);
+  });
+}
+
+// 4. Reward Token Type conditional: Alpha → Alpha ID, Spot → Contract Address
+function toggleRewardTokenFields(selectEl, prefix) {
+  var val = selectEl.value;
+  var alphaEl = document.getElementById(prefix + '-alpha');
+  var spotEl = document.getElementById(prefix + '-spot');
+  if (alphaEl) alphaEl.classList.toggle('hidden', val !== 'alpha');
+  if (spotEl) spotEl.classList.toggle('hidden', val !== 'spot');
+}
+
+// 5. Bonus pool Token Type toggle
+function toggleBonusTokenType() {
+  var val = document.getElementById('bonusTokenType').value;
+  document.getElementById('bonusAlphaId').classList.toggle('hidden', val !== 'alpha');
+  document.getElementById('bonusContract').classList.toggle('hidden', val !== 'spot');
+}
+
+// 6. Competition ID duplicate check
+function checkCompetitionId() {
+  var val = document.getElementById('competitionId').value.trim();
+  var result = document.getElementById('idCheckResult');
+  if (!val) {
+    result.className = 'err';
+    result.innerHTML = '&#10007; 请输入 ID';
+    return;
+  }
+  // Simulated existing IDs: anything containing "s12" or "s1"
+  var existingPattern = /s1[0-9]/i;
+  if (existingPattern.test(val)) {
+    result.className = 'err';
+    result.innerHTML = '&#10007; ID 已存在';
+  } else {
+    result.className = 'ok';
+    result.innerHTML = '&#10003; ID 可用';
+  }
+}
+</script>
+
+</body>
+</html>
